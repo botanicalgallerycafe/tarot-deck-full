@@ -67,9 +67,11 @@
   <h1>Welcome to the Tarot of the Garden</h1>
   <div id="cardsContainer"></div>
   <button onclick="showCardBacks()">Reshuffle the Garden</button>
+  <button onclick="speakReading()">Reading</button>
 
   <script>
     let tarotCards = [];
+    let currentSelection = [];
 
     fetch("tarot_cards.json")
       .then(res => res.json())
@@ -84,26 +86,25 @@
 
     function showCardBacks() {
       const used = new Set();
-      const selected = [];
-      while (selected.length < 5) {
+      currentSelection = [];
+      while (currentSelection.length < 5) {
         const index = Math.floor(Math.random() * tarotCards.length);
         if (!used.has(index)) {
           used.add(index);
-          selected.push(tarotCards[index]);
+          currentSelection.push(tarotCards[index]);
         }
       }
 
       const container = document.getElementById("cardsContainer");
       container.innerHTML = "";
 
-      selected.forEach(card => {
+      currentSelection.forEach(card => {
         const cardDiv = document.createElement("div");
         cardDiv.className = "card";
 
         const img = document.createElement("img");
         img.src = "tarot_back.png";
 
-        // On click, reveal the true card image
         img.addEventListener("click", () => {
           img.src = `${card.id}.png`;
         });
@@ -111,6 +112,23 @@
         cardDiv.appendChild(img);
         container.appendChild(cardDiv);
       });
+    }
+
+    function speakReading() {
+      if (!("speechSynthesis" in window)) {
+        alert("Sorry, your browser doesn't support speech.");
+        return;
+      }
+
+      let combined = "Here is your garden reading. ";
+      currentSelection.forEach(card => {
+        combined += `${card.name}. ${card.meaning} `;
+      });
+
+      const utterance = new SpeechSynthesisUtterance(combined);
+      utterance.rate = 0.95;
+      utterance.pitch = 1;
+      speechSynthesis.speak(utterance);
     }
   </script>
 
