@@ -76,60 +76,56 @@
   </div>
 
   <script>
-    let tarotCards = [];
+  let tarotCards = [];
 
-    fetch("tarot_cards.json")
-      .then(res => res.json())
-      .then(data => {
-        tarotCards = data;
-        document.querySelectorAll("button").forEach(btn => btn.disabled = false);
-      })
-      .catch(err => {
-        console.error("Failed to load JSON:", err);
-        alert("Failed to load card data.");
-      });
+  fetch("tarot_cards.json")
+    .then(res => res.json())
+    .then(data => {
+      tarotCards = data;
+      document.querySelector("button").disabled = false;
+    })
+    .catch(err => {
+      console.error("Failed to load JSON:", err);
+      alert("Could not load tarot card data.");
+    });
 
-    function drawCards(count) {
-      if (tarotCards.length === 0) {
-        alert("Cards not loaded yet.");
-        return;
+  function drawCards(count) {
+    if (tarotCards.length === 0) {
+      alert("Card data not loaded yet.");
+      return;
+    }
+
+    const used = new Set();
+    const selected = [];
+    while (selected.length < count) {
+      const index = Math.floor(Math.random() * tarotCards.length);
+      if (!used.has(index)) {
+        used.add(index);
+        selected.push(tarotCards[index]);
       }
+    }
 
-      const used = new Set();
-      const selected = [];
-      while (selected.length < count) {
-        const index = Math.floor(Math.random() * tarotCards.length);
-        if (!used.has(index)) {
-          used.add(index);
-          selected.push(tarotCards[index]);
-        }
-      }
+    const container = document.getElementById("cardsContainer");
+    container.innerHTML = "";
 
-      const container = document.getElementById("cardsContainer");
-      container.innerHTML = "";
+    selected.forEach((card, i) => {
+      const cardDiv = document.createElement("div");
+      cardDiv.className = "card";
 
-      selected.forEach(card => {
-        const div = document.createElement("div");
-        div.className = "card";
+      const img = document.createElement("img");
+      img.src = "tarot_back.png";
 
-        const img = document.createElement("img");
+      cardDiv.appendChild(img);
+      container.appendChild(cardDiv);
+
+      // Delay image swap for fade effect without grain
+      setTimeout(() => {
         img.src = `${card.id}.png`;
-        img.alt = card.name;
-        img.loading = "lazy";
-        img.onerror = () => { img.src = 'placeholder.png'; };
+      }, i * 1500);
+    });
+  }
+</script>
 
-        const title = document.createElement("h3");
-        title.textContent = card.name;
-
-        const meaning = document.createElement("p");
-        meaning.innerHTML = `<em>${card.meaning}</em>`;
-
-        div.appendChild(img);
-        div.appendChild(title);
-        div.appendChild(meaning);
-
-        container.appendChild(div);
-      });
     }
   </script>
 </body>
