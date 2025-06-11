@@ -31,45 +31,42 @@
       margin-top: 20px;
     }
     .card {
-      width: 250px;
-      background: rgba(255,255,255,0.9);
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      overflow: hidden;
-      text-align: left;
-      color: #000;
-    }
-    .card img {
-      width: 100%;
-      loading: lazy;
-    }
-    .card h3 {
-      font-size: 18px;
-      margin: 10px;
-    }
-    .card p {
-      margin: 0 10px 10px 10px;
-      font-size: 14px;
+      width: 240px;
+      height: 350px;
+      perspective: 1000px;
     }
     .card-inner {
-      transform-style: preserve-3d;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
       transition: transform 0.8s;
-       will-change: transform;
+      transform-style: preserve-3d;
+      cursor: pointer;
     }
-
-    .card-front img, .card-back img {
-      image-rendering: auto;
-      -webkit-backface-visibility: hidden;
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
       backface-visibility: hidden;
-      transform: translateZ(0);
+      border-radius: 8px;
+      overflow: hidden;
     }
-
+    .card-front img, .card-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+    }
     @media (max-width: 768px) {
       .card {
         width: 90%;
-      }
-      #cardsContainer img {
-        width: 100px !important;
+        height: auto;
       }
     }
   </style>
@@ -78,15 +75,7 @@
   <button onclick="drawCards(3)">Draw 3 Cards</button>
   <button onclick="drawCards(5)">Draw 5 Cards</button>
 
-  <div id="cardsContainer">
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 40px;">
-      <img src="tarot_back.png" style="width: 240px; border-radius: 8px;" alt="Card Back">
-      <img src="tarot_back.png" style="width: 240px; border-radius: 8px;" alt="Card Back">
-      <img src="tarot_back.png" style="width: 240px; border-radius: 8px;" alt="Card Back">
-      <img src="tarot_back.png" style="width: 240px; border-radius: 8px;" alt="Card Back">
-      <img src="tarot_back.png" style="width: 240px; border-radius: 8px;" alt="Card Back">
-    </div>
-  </div>
+  <div id="cardsContainer"></div>
 
   <script>
     let tarotCards = [];
@@ -122,26 +111,33 @@
       container.innerHTML = "";
 
       selected.forEach(card => {
-        const div = document.createElement("div");
-        div.className = "card";
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "card";
 
-        const img = document.createElement("img");
-        img.src = `${card.id}.png`;
-        img.alt = card.name;
-        img.loading = "lazy";
-        img.onerror = () => { img.src = 'placeholder.png'; };
+        const innerDiv = document.createElement("div");
+        innerDiv.className = "card-inner";
 
-        const title = document.createElement("h3");
-        title.textContent = card.name;
+        const front = document.createElement("div");
+        front.className = "card-front";
+        const frontImg = document.createElement("img");
+        frontImg.src = 'tarot_back.png';
+        front.appendChild(frontImg);
 
-        const meaning = document.createElement("p");
-        meaning.innerHTML = `<em>${card.meaning}</em>`;
+        const back = document.createElement("div");
+        back.className = "card-back";
+        const backImg = document.createElement("img");
+        backImg.src = `${card.id}.png`;
+        back.appendChild(backImg);
 
-        div.appendChild(img);
-        div.appendChild(title);
-        div.appendChild(meaning);
+        innerDiv.appendChild(front);
+        innerDiv.appendChild(back);
+        cardDiv.appendChild(innerDiv);
 
-        container.appendChild(div);
+        cardDiv.addEventListener('click', () => {
+          cardDiv.classList.toggle('flipped');
+        });
+
+        container.appendChild(cardDiv);
       });
     }
   </script>
