@@ -120,15 +120,37 @@
         return;
       }
 
-      let combined = "Here is your garden reading. ";
+      const voices = speechSynthesis.getVoices();
+      const utterances = [];
+
+      // Intro
+      const intro = new SpeechSynthesisUtterance("Here is your garden reading.");
+      intro.rate = 0.95;
+      intro.pitch = 1;
+      utterances.push(intro);
+
+      // Card-by-card messages with pauses
       currentSelection.forEach(card => {
-        combined += `${card.name}. ${card.meaning} `;
+        const pause = new SpeechSynthesisUtterance("...");
+        pause.rate = 1;
+        pause.volume = 0;
+
+        const message = new SpeechSynthesisUtterance(`${card.name}. ${card.meaning}`);
+        message.rate = 0.95;
+        message.pitch = 1;
+
+        utterances.push(pause);
+        utterances.push(message);
       });
 
-      const utterance = new SpeechSynthesisUtterance(combined);
-      utterance.rate = 0.95;
-      utterance.pitch = 1;
-      speechSynthesis.speak(utterance);
+      // Outro message
+      const outro = new SpeechSynthesisUtterance("Thank you for listening. May your garden thrive. Adopt more plants, they’re waiting for you.");
+      outro.rate = 0.9;
+      outro.pitch = 1;
+      utterances.push(outro);
+
+      // Speak all in sequence
+      utterances.forEach(utt => speechSynthesis.speak(utt));
     }
   </script>
 
