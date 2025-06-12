@@ -105,6 +105,10 @@
         const img = document.createElement("img");
         img.src = "tarot_back.png";
 
+        // Preload the front image
+        const preload = new Image();
+        preload.src = `${card.id}.png`;
+
         img.addEventListener("click", () => {
           img.src = `${card.id}.png`;
         });
