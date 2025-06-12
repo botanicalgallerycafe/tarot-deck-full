@@ -1,28 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Botanical Oracle</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       background: #1b1b1b;
-      background-size: cover;
+      color: #fff;
       text-align: center;
       padding: 20px;
-      color: #fff;
     }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
     button {
-      background: rgba(0,0,0,0.7);
+      background: rgba(255,255,255,0.1);
       color: white;
       border: none;
       padding: 10px 20px;
       font-size: 16px;
       border-radius: 6px;
-      margin: 10px;
+      margin-top: 20px;
       cursor: pointer;
     }
+
     #cardsContainer {
       display: flex;
       flex-wrap: wrap;
@@ -30,20 +36,24 @@
       gap: 20px;
       margin-top: 20px;
     }
+
     .card {
       width: 240px;
       height: 350px;
       border-radius: 8px;
       overflow: hidden;
       cursor: pointer;
+      background: none;
     }
+
     .card img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      border-radius: 8px;
-      transition: opacity 0.3s ease-in-out;
+      object-fit: contain;
+      display: block;
+      border: none;
     }
+
     @media (max-width: 768px) {
       .card {
         width: 90%;
@@ -53,55 +63,47 @@
   </style>
 </head>
 <body>
-  <button onclick="drawCards(3)">Draw 3 Cards</button>
-  <button onclick="drawCards(5)">Draw 5 Cards</button>
 
+  <h1>Welcome to the Tarot of the Garden</h1>
   <div id="cardsContainer"></div>
+  <button onclick="showCardBacks()">Reshuffle the Garden</button>
+  <button onclick="speakReading()">Reading</button>
 
   <script>
     let tarotCards = [];
+    let currentSelection = [];
 
     fetch("tarot_cards.json")
       .then(res => res.json())
       .then(data => {
         tarotCards = data;
-        document.querySelectorAll("button").forEach(btn => btn.disabled = false);
+        showCardBacks();
       })
       .catch(err => {
         console.error("Failed to load JSON:", err);
-        alert("Failed to load card data.");
+        alert("Could not load tarot card data.");
       });
 
-    function drawCards(count) {
-      if (tarotCards.length === 0) {
-        alert("Cards not loaded yet.");
-        return;
-      }
-
+    function showCardBacks() {
       const used = new Set();
-      const selected = [];
-      while (selected.length < count) {
+      currentSelection = [];
+      while (currentSelection.length < 5) {
         const index = Math.floor(Math.random() * tarotCards.length);
         if (!used.has(index)) {
           used.add(index);
-          selected.push(tarotCards[index]);
+          currentSelection.push(tarotCards[index]);
         }
       }
 
       const container = document.getElementById("cardsContainer");
       container.innerHTML = "";
 
-      selected.forEach(card => {
+      currentSelection.forEach(card => {
         const cardDiv = document.createElement("div");
         cardDiv.className = "card";
 
         const img = document.createElement("img");
         img.src = "tarot_back.png";
-        img.alt = card.name;
-
-        // Preload the front image
-        const preload = new Image();
-        preload.src = `${card.id}.png`;
 
         img.addEventListener("click", () => {
           img.src = `${card.id}.png`;
@@ -111,6 +113,46 @@
         container.appendChild(cardDiv);
       });
     }
+
+    function speakReading() {
+      if (!("speechSynthesis" in window)) {
+        alert("Sorry, your browser doesn't support speech.");
+        return;
+      }
+
+      const voices = speechSynthesis.getVoices();
+      const utterances = [];
+
+      // Intro
+      const intro = new SpeechSynthesisUtterance("Here is your garden reading.");
+      intro.rate = 0.95;
+      intro.pitch = 1;
+      utterances.push(intro);
+
+      // Card-by-card messages with pauses
+      currentSelection.forEach(card => {
+        const pause = new SpeechSynthesisUtterance("...");
+        pause.rate = 1;
+        pause.volume = 0;
+
+        const message = new SpeechSynthesisUtterance(`${card.name}. ${card.meaning}`);
+        message.rate = 0.95;
+        message.pitch = 1;
+
+        utterances.push(pause);
+        utterances.push(message);
+      });
+
+      // Outro message
+      const outro = new SpeechSynthesisUtterance("Thank you for listening. May your garden thrive. Adopt more plants, they’re waiting for you.");
+      outro.rate = 0.9;
+      outro.pitch = 1;
+      utterances.push(outro);
+
+      // Speak all in sequence
+      utterances.forEach(utt => speechSynthesis.speak(utt));
+    }
   </script>
+
 </body>
 </html>
