@@ -33,35 +33,16 @@
     .card {
       width: 240px;
       height: 350px;
-      perspective: 1000px;
-    }
-    .card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      text-align: center;
-      transition: transform 0.8s;
-      transform-style: preserve-3d;
-      cursor: pointer;
-    }
-    .card.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
       border-radius: 8px;
       overflow: hidden;
+      cursor: pointer;
     }
-    .card-front img, .card-back img {
+    .card img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-    }
-    .card-back {
-      transform: rotateY(180deg);
+      border-radius: 8px;
+      transition: opacity 0.3s ease-in-out;
     }
     @media (max-width: 768px) {
       .card {
@@ -114,33 +95,19 @@
         const cardDiv = document.createElement("div");
         cardDiv.className = "card";
 
-        const innerDiv = document.createElement("div");
-        innerDiv.className = "card-inner";
+        const img = document.createElement("img");
+        img.src = "tarot_back.png";
+        img.alt = card.name;
 
-        const front = document.createElement("div");
-        front.className = "card-front";
-        const frontImg = document.createElement("img");
-        frontImg.src = 'tarot_back.png';
-        front.appendChild(frontImg);
-
-        const back = document.createElement("div");
-        back.className = "card-back";
-        const backImg = document.createElement("img");
-        backImg.src = `${card.id}.png`;
-        back.appendChild(backImg);
-
-        // Preload the back image
+        // Preload the front image
         const preload = new Image();
         preload.src = `${card.id}.png`;
 
-        innerDiv.appendChild(front);
-        innerDiv.appendChild(back);
-        cardDiv.appendChild(innerDiv);
-
-        cardDiv.addEventListener('click', () => {
-          cardDiv.classList.toggle('flipped');
+        img.addEventListener("click", () => {
+          img.src = `${card.id}.png`;
         });
 
+        cardDiv.appendChild(img);
         container.appendChild(cardDiv);
       });
     }
