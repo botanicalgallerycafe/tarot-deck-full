@@ -128,7 +128,7 @@
       const utterances = [];
 
       // Intro
-      const intro = new SpeechSynthesisUtterance("Here is your garden reading.");
+      const intro = new SpeechSynthesisUtterance("welcome to botanical gallery cafe. Here is your garden reading.");
       intro.rate = 0.95;
       intro.pitch = 1;
       utterances.push(intro);
@@ -148,7 +148,7 @@
       });
 
       // Outro message
-      const outro = new SpeechSynthesisUtterance("Thank you for listening. May your garden thrive. Adopt more plants, they’re waiting for you.");
+      const outro = new SpeechSynthesisUtterance("Thank you for visiting Botanical Gallery cafe. May your garden thrive. Adopt more plants, they’re waiting for you.");
       outro.rate = 0.9;
       outro.pitch = 1;
       utterances.push(outro);
